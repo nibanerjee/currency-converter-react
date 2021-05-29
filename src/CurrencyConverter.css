@@ -1,0 +1,38 @@
+.main-container {
+    background-color: #89CFF0;
+    padding: 20px;
+    border-radius: 5px;
+    min-height: 210px;
+    min-width:400px;
+  }
+
+  .main-container .header{
+    text-align: center;
+    margin-bottom:15px;
+  }
+
+  .main-container .calculator{
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .main-container .calculator .from-currency-container,
+  .main-container .calculator .to-currency-container,
+  .main-container .calculator .amount-container{
+    margin-bottom: 15px;
+  }
+  
+  .main-container .calculator .from-currency-container label,
+  .main-container .calculator .to-currency-container label,
+  .main-container .calculator .amount-container label {
+    margin-right:15px;
+  }
+
+  .main-container .calculator .result-container{
+      font-family: RobotoMedium;
+      font-size:18px;
+  }
+
+
+  
