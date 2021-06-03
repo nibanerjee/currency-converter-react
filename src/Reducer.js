@@ -1,4 +1,4 @@
-import { currencyMatrix, amountValidator, isNumeric } from './Constants';
+import { currencyMatrix, amountValidator, handleCalculation } from './Utility';
 
 export default function reducer( 
   state = {
@@ -8,99 +8,50 @@ export default function reducer(
     result: 'AUD 0.00'
   }, 
   action) {
-    
+
     let { type, value } = action;
 
     const calculateCurrencyConversion = () => {
-
-      if(!amountValidator.test(state.amount))
+      let {fromCurrency, toCurrency, amount} = state;
+      if(!amountValidator.test(amount))
           return 'Please enter a valid value for amount field';
-
-      let matrixKey = state.fromCurrency + state.toCurrency;
-
-      let decimalPoints = state.toCurrency === 'JPY' ? 0 : 2;
-      
+      let matrixKey = fromCurrency + toCurrency;
+      let decimalPoints = toCurrency === 'JPY' ? 0 : 2;
       if(!currencyMatrix[matrixKey]) {
-
-          return `Unable to find rate for ${state.fromCurrency}/${state.toCurrency}`;
-
-      } else if(currencyMatrix[matrixKey] === '1:1') {
-
-          let rate = 1 * Number(state.amount);
-          return `${state.toCurrency} ${rate.toFixed(decimalPoints)}`;
-
-      } else if (currencyMatrix[matrixKey] === 'INV') {
-
-          let flippedKey = state.toCurrency + state.fromCurrency;
-          let rate = ( 1 / currencyMatrix[flippedKey] ) * Number(state.amount);
-          return `${state.toCurrency} ${rate.toFixed(decimalPoints)}`;
-
+          return `Unable to find rate for ${fromCurrency}/${toCurrency}`;
       } else {
-          
-          let rate = currencyMatrix[matrixKey];
-
-          if (isNumeric(rate)) {
-  
-             return `${state.toCurrency} ${(rate * Number(state.amount)).toFixed(decimalPoints)}`;
-
-          } else {
-              let { fromCurrency, toCurrency, amount } = state;
-              function currencyRateHelper(rate){
-
-                  if(isNumeric(rate)) {
-                    amount = Number(amount) * rate;
-                    return;
-                  }
-
-                  let left = currencyMatrix[fromCurrency + rate];
-                  if(left === 'INV') 
-                      left = 1 / currencyMatrix[rate + fromCurrency];
-                  let right = currencyMatrix[rate + toCurrency];
-                  if(right === 'INV') 
-                      right = 1 / currencyMatrix[toCurrency + rate];
-
-                  fromCurrency = rate;
-                  currencyRateHelper(left);
-                  currencyRateHelper(right);
-
-              }
-              currencyRateHelper(rate);
-              return `${state.toCurrency} ${amount.toFixed(decimalPoints)}`;
-          }
-
+          let convertedAmount = handleCalculation(fromCurrency, toCurrency, amount);
+          return `${state.toCurrency} ${Number(convertedAmount).toFixed(decimalPoints)}`;
       }
-
     }
 
     if (type === 'UPDATE_FROM_CURRENCY') {
-
-      state.fromCurrency = value;
       return {
-            ...state,
-            result : calculateCurrencyConversion()
+          ...state,
+          fromCurrency : value
       };
-
     }
   
     if (type === 'UPDATE_AMOUNT') {
-
-      state.amount = value;
       return {
-            ...state,
-            result : calculateCurrencyConversion()
+          ...state,
+          amount : value
       };
-
     }
   
     if (type === 'UPDATE_TO_CURRENCY') {
-
-        state.toCurrency = value;
         return {
-            ...state,
-            result : calculateCurrencyConversion()
+          ...state,
+          toCurrency : value
         };
-
     }
-  
+
+    if (type === 'CALCULATE_CONVERSION') {
+        return {
+          ...state,
+          result : calculateCurrencyConversion()
+        };
+    }
+
     return state;
 }

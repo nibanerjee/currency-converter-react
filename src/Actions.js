@@ -12,3 +12,8 @@ export const updateFromCurrency = value => ({
     type: 'UPDATE_TO_CURRENCY',
     value
   });
+
+  export const calculateConversion = () => ({
+    type: 'CALCULATE_CONVERSION',
+  });
+  

@@ -1,20 +1,29 @@
 import './CurrencyConverter.css';
-import React from 'react';
-import { connect } from 'react-redux';
-import { updateFromCurrency, updateAmount, updateToCurrency} from './Actions';
+import React, { useEffect } from 'react';
+import { useSelector,useDispatch } from 'react-redux';
+import { updateFromCurrency, updateAmount, updateToCurrency, calculateConversion } from './Actions';
 
-const CurrencyConverter = (props) => {
+const CurrencyConverter = () => {
+
+    const reducerState = useSelector(state => state);
+    const dispatch = useDispatch();
+
+    const {result, fromCurrency, toCurrency, amount} = reducerState;
+
+    useEffect(() => {
+        dispatch(calculateConversion());
+    },[ dispatch, fromCurrency, toCurrency, amount ]);
 
     const handleFromCurrencyChange = event => {
-        props.updateFrom(event.target.value);
+        dispatch(updateFromCurrency(event.target.value));
     };
 
     const handleToCurrencyChange = event => {
-        props.updateTo(event.target.value);
+        dispatch(updateToCurrency(event.target.value));
     }
 
     const handleAmountChange = event => {
-        props.updateAmt(event.target.value);
+        dispatch(updateAmount(event.target.value));
     }
 
     return (
@@ -23,7 +32,7 @@ const CurrencyConverter = (props) => {
             <div className="calculator">
                 <div className="from-currency-container">
                     <label htmlFor="from-currency">From Currency</label>
-                    <select onChange={handleFromCurrencyChange} name="from-currency" value={props.fromCurrency} id="from-currency" data-testid="from-currency">
+                    <select onChange={handleFromCurrencyChange} name="from-currency" value={fromCurrency} id="from-currency" data-testid="from-currency">
                         <option value="AUD">AUD</option>
                         <option value="CAD">CAD</option>
                         <option value="CNY">CNY</option>
@@ -40,11 +49,11 @@ const CurrencyConverter = (props) => {
                 </div>
                 <div className="amount-container">
                     <label htmlFor="amount">Amount</label>
-                    <input type="text" placeholder="amount" id="amount" data-testid="amount" onChange={handleAmountChange} value={props.amount}/>
+                    <input type="text" placeholder="amount" id="amount" data-testid="amount" onChange={handleAmountChange} value={amount}/>
                 </div>
                 <div className="to-currency-container">
                     <label htmlFor="to-currency">To Currency</label>
-                    <select onChange={handleToCurrencyChange} name="to-currency" value={props.toCurrency} id="to-currency" data-testid="to-currency">
+                    <select onChange={handleToCurrencyChange} name="to-currency" value={toCurrency} id="to-currency" data-testid="to-currency">
                         <option value="AUD">AUD</option>
                         <option value="CAD">CAD</option>
                         <option value="CNY">CNY</option>
@@ -60,7 +69,7 @@ const CurrencyConverter = (props) => {
                     </select>
                 </div>
                 <div className="result-container">
-                    <label data-testid="result">Result : {props.convertedCurrency}</label>
+                    <label data-testid="result">Result : {result}</label>
                 </div>
             </div>
             
@@ -68,25 +77,4 @@ const CurrencyConverter = (props) => {
     )
 }
 
-const mapStateToProps = ({ result,fromCurrency,toCurrency,amount }) => {
-    return {
-      convertedCurrency : result,
-      fromCurrency,
-      toCurrency,
-      amount
-    };
-};
-  
-const mapDispatchToProps = dispatch => ({
-    updateFrom(value) {
-        dispatch(updateFromCurrency(value));
-    },
-    updateAmt(value) {
-        dispatch(updateAmount(value));
-    },
-    updateTo(value) {
-        dispatch(updateToCurrency(value));
-    }
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(CurrencyConverter);
+export default CurrencyConverter;

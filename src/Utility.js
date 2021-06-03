@@ -121,6 +121,26 @@ export const currencyMatrix = {
     'USDNZD' : 'INV',
     'USDUSD' : '1:1'
 };
-export const amountValidator = new RegExp('^[0-9]+$');
+export const amountValidator = new RegExp('^[0-9.]+$');
 
 export const isNumeric = (num) => /^-{0,1}\d*\.{0,1}\d+$/.test(num);
+
+export const handleCalculation = (fromCurrency, toCurrency, amount) => {
+  const currencyRateHelper = (fromCurrency, toCurrency) => {
+    let rate = currencyMatrix[fromCurrency + toCurrency];
+    if(rate === 'INV') {
+      let inverseRate = 1 / currencyMatrix[toCurrency + fromCurrency];
+      amount = Number(amount) * inverseRate;
+      return;
+    } else if(rate === '1:1') {
+      return;
+    } else if(isNumeric(rate)) {
+      amount = Number(amount) * rate;
+      return;
+    }
+    currencyRateHelper(fromCurrency, rate);
+    currencyRateHelper(rate, toCurrency);
+  }
+  currencyRateHelper(fromCurrency, toCurrency);
+  return amount;
+}
